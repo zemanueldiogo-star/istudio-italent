@@ -1,15 +1,4 @@
 {
-    "name": "istudio-italent",
-    "version": "1.0.0",
-    "description": "iStudio iTalent AI Generator powered by Claude",
-    "main": "api/generate.js",
-    "scripts": {
-          "start": "node api/generate.js"
-    },
-    "dependencies": {
-          "@anthropic-ai/sdk": "^0.20.0"
-    },
-    "engines": {
-          "node": ">=18.0.0"
-    }
+  "name": "istudio-italent",
+  "version": "1.0.0"
 }
