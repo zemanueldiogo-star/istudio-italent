@@ -1,119 +1,804 @@
 <!DOCTYPE html>
-  <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iStudio iTalent - AI Generator</title>
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-            font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>iStudio — by iTalent</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#FF6B35;
+  --brand-dark:#e0541f;
+  --black:#1A1A1A;
+  --white:#FAFAFA;
+  --surface:#F2EFE9;
+  --surface2:#E8E4DC;
+  --panel:#181818;
+  --panel2:#222222;
+  --panel3:#2C2C2C;
+  --text:#1A1A1A;
+  --muted:#8A8278;
+  --border:rgba(255,255,255,0.07);
+  --border-light:rgba(26,26,26,0.09);
 }
-    .container {
-            background: white;
-      border-radius: 16px;
-      padding: 40px;
-      width: 100%;
-      max-width: 700px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);overflow:hidden}
+
+/* TOPBAR */
+.topbar{
+  height:50px;background:var(--black);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;position:fixed;top:0;left:0;right:0;z-index:200;
+  border-bottom:1px solid rgba(255,255,255,0.05);
 }
-    h1 {
-            text-align: center;
-      color: #333;
-      margin-bottom: 8px;
-      font-size: 2rem;
+.logo{display:flex;align-items:center;gap:14px}
+.logo-mark{position:relative;display:inline-block;line-height:1}
+.logo-text{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:#fff;font-style:italic;letter-spacing:-0.01em}
+.logo-dot{
+  position:absolute;
+  width:7px;height:7px;
+  background:var(--brand);border-radius:50%;
+  /* posicionado sobre o ponto do "i" — ajustado para Playfair Display 20px */
+  top:-1px;left:1px;
 }
-    .subtitle {
-            text-align: center;
-      color: #888;
-      margin-bottom: 32px;
-      font-size: 0.9rem;
+.logo-by{
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;
+  color:rgba(255,255,255,0.2);letter-spacing:0.03em;
+  border-left:1px solid rgba(255,255,255,0.1);padding-left:14px;
 }
-    textarea {
-            width: 100%;
-      height: 150px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 16px;
-      font-size: 1rem;
-      resize: vertical;
-      transition: border-color 0.2s;
+.nav-tabs{display:flex;gap:2px}
+.ntab{
+  font-size:12px;color:rgba(255,255,255,0.38);background:transparent;
+  border:none;padding:6px 14px;border-radius:6px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all 0.16s;
 }
-    textarea:focus {
-            outline: none;
-      border-color: #667eea;
+.ntab:hover{color:#fff;background:rgba(255,255,255,0.07)}
+.ntab.on{color:var(--black);background:#fff}
+
+/* APP BODY */
+.app-body{display:flex;height:calc(100vh - 50px);margin-top:50px}
+
+/* DASHBOARD */
+.dashboard{flex:1;padding:28px;overflow-y:auto;display:none}
+.dashboard.v{display:block}
+.section-label{
+  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;
+  color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px;
 }
-    button {
-            width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 16px;
-      transition: opacity 0.2s;
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.mcard{
+  background:#fff;border-radius:14px;padding:20px;cursor:pointer;
+  border:1.5px solid transparent;transition:all 0.2s;position:relative;overflow:hidden;
 }
-    button:hover { opacity: 0.9; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .result {
-            margin-top: 24px;
-      padding: 20px;
-      background: #f8f9fa;
-            border-radius: 8px;
-      border-left: 4px solid #667eea;
-      display: none;
+.mcard:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:0 6px 24px rgba(255,107,53,0.1)}
+.mcard-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.mtag{
+  position:absolute;top:14px;right:14px;
+  font-size:9px;font-weight:500;padding:3px 8px;border-radius:10px;
+  font-family:'DM Sans',sans-serif;letter-spacing:0.03em;
 }
-    .result h3 { color: #555; margin-bottom: 12px; }
-    .result p { color: #333; line-height: 1.6; white-space: pre-wrap; }
-    .loading { text-align: center; color: #667eea; margin-top: 16px; display: none; }
-  </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>iStudio iTalent</h1>
-        <p class="subtitle">Powered by Claude AI</p>
-    <textarea id="prompt" placeholder="Digite seu prompt aqui..."></textarea>
-    <button onclick="generate()" id="btn">Gerar com IA</button>
-        <div class="loading" id="loading">Gerando...</div>
-        <div class="result" id="result">
-          <h3>Resposta:</h3>
-          <p id="resultText"></p>
-        </div>
+.tag-ai{background:#FFF0EA;color:#CC4A1A}
+.tag-mn{background:#F0F0F0;color:#666}
+.mcard-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:500;color:var(--black);margin-bottom:5px}
+.mcard-desc{font-size:12px;color:var(--muted);line-height:1.5;font-style:italic}
+.mcard-btn{
+  display:inline-block;margin-top:12px;font-size:11px;font-weight:500;
+  color:var(--brand);border:1.5px solid rgba(255,107,53,0.35);
+  padding:5px 14px;border-radius:20px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all 0.16s;background:transparent;
+}
+.mcard-btn:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+/* EDITOR */
+.editor-wrap{flex:1;display:none;height:100%}
+.editor-wrap.v{display:flex}
+
+/* LEFT PANEL */
+.lpanel{
+  width:252px;min-width:252px;background:var(--panel);
+  overflow-y:auto;height:100%;
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+.ptop{
+  padding:13px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.pmode{font-family:'Playfair Display',serif;font-size:14px;color:#fff;font-style:italic}
+.psub{font-size:9px;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+.back-btn{
+  font-size:11px;color:rgba(255,255,255,0.35);background:transparent;
+  border:1px solid rgba(255,255,255,0.1);padding:5px 10px;border-radius:6px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.16s;
+}
+.back-btn:hover{color:#fff;border-color:rgba(255,255,255,0.28)}
+
+.psec{padding:13px 16px;border-bottom:1px solid var(--border)}
+.sec-lbl{
+  font-size:9px;font-weight:500;color:rgba(255,255,255,0.2);
+  letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px;
+  font-family:'DM Sans',sans-serif;
+}
+.flbl{font-size:10px;color:rgba(255,255,255,0.32);margin-bottom:5px;margin-top:9px;display:block;font-family:'DM Sans',sans-serif}
+.pi{
+  width:100%;background:var(--panel2);border:1px solid rgba(255,255,255,0.07);
+  border-radius:7px;padding:8px 10px;
+  font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;outline:none;
+  transition:border-color 0.16s;
+}
+.pi:focus{border-color:var(--brand)}
+.pi::placeholder{color:rgba(255,255,255,0.18);font-style:italic}
+.psel{
+  width:100%;background:var(--panel2);border:1px solid rgba(255,255,255,0.07);
+  border-radius:7px;padding:8px 10px;
+  font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;outline:none;cursor:pointer;
+}
+.psel option{background:var(--panel2)}
+.pta{
+  width:100%;background:var(--panel2);border:1px solid rgba(255,255,255,0.07);
+  border-radius:7px;padding:8px 10px;
+  font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;outline:none;
+  min-height:64px;resize:vertical;line-height:1.5;
+}
+.pta:focus{border-color:var(--brand)}
+.pta::placeholder{color:rgba(255,255,255,0.18);font-style:italic}
+
+.sl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.sl-lbl{font-size:10px;color:rgba(255,255,255,0.28);font-family:'DM Sans',sans-serif}
+.sl-val{font-size:10px;color:rgba(255,255,255,0.45);font-weight:500;font-family:'DM Sans',sans-serif}
+input[type=range]{
+  width:100%;height:2px;-webkit-appearance:none;
+  background:var(--panel3);border-radius:2px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;
+  background:var(--brand);border-radius:50%;cursor:pointer;
+}
+
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{
+  font-size:10px;font-weight:400;padding:4px 10px;border-radius:12px;
+  border:1px solid rgba(255,255,255,0.09);cursor:pointer;
+  background:var(--panel2);color:rgba(255,255,255,0.35);
+  font-family:'DM Sans',sans-serif;transition:all 0.15s;
+}
+.chip:hover,.chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.color-row{display:flex;gap:7px;align-items:center}
+input[type=color]{
+  width:32px;height:30px;border:none;border-radius:6px;
+  cursor:pointer;background:transparent;padding:0;flex-shrink:0;
+}
+
+/* PANEL ACTIONS */
+.pactions{
+  padding:13px 16px;margin-top:auto;flex-shrink:0;
+  display:flex;flex-direction:column;gap:7px;
+  border-top:1px solid var(--border);
+}
+.status-txt{
+  font-size:10px;color:rgba(255,255,255,0.28);
+  font-style:italic;text-align:center;min-height:16px;
+  font-family:'DM Sans',sans-serif;
+}
+.abtn{
+  width:100%;padding:11px;border:none;border-radius:7px;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:8px;transition:all 0.16s;
+}
+.abtn-primary{background:var(--brand);color:#fff}
+.abtn-primary:hover{background:var(--brand-dark)}
+.abtn-primary:disabled{background:#2e2e2e;color:#555;cursor:not-allowed}
+.abtn-ghost{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.08)}
+.abtn-ghost:hover{background:rgba(255,255,255,0.09);color:#fff}
+.abtn-dark{background:var(--black);color:#fff;border:1px solid rgba(255,255,255,0.08)}
+.abtn-dark:hover{background:#222}
+
+/* CANVAS AREA */
+.canvas-area{
+  flex:1;background:#0f0f0f;
+  display:flex;flex-direction:column;align-items:center;
+  overflow-y:auto;padding:22px;gap:16px;
+}
+.canvas-header{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;max-width:360px;
+}
+.slide-nav{display:flex;align-items:center;gap:10px}
+.nav-arr{
+  background:#1e1e1e;border:none;border-radius:7px;
+  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;color:rgba(255,255,255,0.45);transition:all 0.15s;
+}
+.nav-arr:hover{background:var(--brand);color:#fff}
+.slide-count{font-size:12px;color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif}
+.dl-btn{
+  background:#1e1e1e;border:1px solid rgba(255,255,255,0.09);border-radius:7px;
+  padding:6px 14px;font-size:11px;font-weight:500;cursor:pointer;
+  color:rgba(255,255,255,0.45);font-family:'DM Sans',sans-serif;transition:all 0.16s;
+}
+.dl-btn:hover{background:#fff;color:var(--black);border-color:#fff}
+
+.slide-wrap{
+  width:100%;max-width:360px;aspect-ratio:4/5;
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 16px 48px rgba(0,0,0,0.55);
+}
+#mainCanvas{width:100%;height:100%;display:block}
+
+.strip{display:flex;gap:8px;width:100%;max-width:360px;overflow-x:auto;padding-bottom:2px}
+.strip::-webkit-scrollbar{height:3px}
+.strip::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.sthumb{
+  flex-shrink:0;width:56px;height:70px;border-radius:7px;overflow:hidden;
+  border:1.5px solid transparent;cursor:pointer;transition:border-color 0.15s;position:relative;
+}
+.sthumb.on{border-color:var(--brand)}
+.sthumb canvas{width:100%;height:100%;display:block}
+.sthumb-num{
+  position:absolute;bottom:3px;right:3px;
+  font-size:8px;font-weight:500;color:rgba(255,255,255,0.7);
+  background:rgba(0,0,0,0.55);padding:1px 4px;border-radius:3px;
+  font-family:'DM Sans',sans-serif;
+}
+
+/* CONFIG */
+.config-tab{flex:1;padding:28px;overflow-y:auto;display:none}
+.config-tab.v{display:block}
+.cfg-card{background:#fff;border-radius:14px;padding:22px;max-width:460px;border:1px solid rgba(0,0,0,0.07)}
+.cfg-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:500;color:var(--black);margin-bottom:18px;font-style:italic}
+.cfl{font-size:11px;color:var(--muted);margin-bottom:6px;margin-top:14px;display:block;font-family:'DM Sans',sans-serif}
+.cfi{
+  width:100%;background:var(--surface);border:1.5px solid transparent;
+  border-radius:7px;padding:9px 11px;
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;
+  transition:border-color 0.16s;
+}
+.cfi:focus{border-color:var(--brand);background:#fff}
+.save-btn{
+  background:var(--brand);color:#fff;border:none;border-radius:7px;
+  padding:10px 24px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;margin-top:20px;transition:background 0.16s;
+}
+.save-btn:hover{background:var(--brand-dark)}
+
+.spinner{
+  width:14px;height:14px;border:2px solid rgba(255,255,255,0.25);
+  border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:2px}
+.lpanel::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08)}
+.canvas-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <span class="logo-text">iStudio</span>
+      <span class="logo-dot"></span>
+    </div>
+    <span class="logo-by">by iTalent</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="ntab on" onclick="showTab('dash',this)">Geradores</button>
+    <button class="ntab" onclick="showTab('cfg',this)">Configurações</button>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <!-- DASHBOARD -->
+  <div class="dashboard v" id="dash">
+    <div class="section-label">Selecione um gerador</div>
+    <div class="modules-grid">
+      <div class="mcard" onclick="openEditor('txt')">
+        <span class="mtag tag-ai">Claude AI</span>
+        <div class="mcard-icon" style="background:#FFF0EA">✍️</div>
+        <div class="mcard-name">Carrossel TXT</div>
+        <div class="mcard-desc">Copy viral com manchetes de alto impacto e estética minimalista.</div>
+        <div class="mcard-btn">Criar agora</div>
       </div>
-      <script>
-        async function generate() {
-          const prompt = document.getElementById('prompt').value;
-      if (!prompt.trim()) { alert('Digite um prompt!'); return; }
-      const btn = document.getElementById('btn');
-      const loading = document.getElementById('loading');
-      const result = document.getElementById('result');
-      btn.disabled = true;
-      loading.style.display = 'block';
-      result.style.display = 'none';
-      try {
-        const res = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt })
-          });
-        const data = await res.json();
-        document.getElementById('resultText').textContent = data.result || data.error;
-        result.style.display = 'block';
-} catch (e) {
-        alert('Erro ao conectar com a API.');
-} finally {
-        btn.disabled = false;
-        loading.style.display = 'none';
+      <div class="mcard" onclick="openEditor('news')">
+        <span class="mtag tag-ai">Claude AI</span>
+        <div class="mcard-icon" style="background:#EAF7EE">📰</div>
+        <div class="mcard-name">Breaking News</div>
+        <div class="mcard-desc">Transforma notícias e acontecimentos em carrosséis de autoridade.</div>
+        <div class="mcard-btn">Criar agora</div>
+      </div>
+      <div class="mcard" onclick="openEditor('manual')">
+        <span class="mtag tag-mn">Manual</span>
+        <div class="mcard-icon" style="background:#F5F0FF">📋</div>
+        <div class="mcard-name">Manual</div>
+        <div class="mcard-desc">Cole o texto pronto e a IA organiza o layout dos slides.</div>
+        <div class="mcard-btn">Criar agora</div>
+      </div>
+      <div class="mcard" onclick="openEditor('zezius')">
+        <span class="mtag tag-ai">Claude AI</span>
+        <div class="mcard-icon" style="background:#EEEAFF">⚡</div>
+        <div class="mcard-name">Zezius AI</div>
+        <div class="mcard-desc">Estilo editorial premium — curado, minimalista, profissional.</div>
+        <div class="mcard-btn">Criar agora</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor-wrap" id="editor">
+
+    <div class="lpanel">
+      <div class="ptop">
+        <div>
+          <div class="pmode" id="pmode">Carrossel TXT</div>
+          <div class="psub">iStudio · Pro Access</div>
+        </div>
+        <button class="back-btn" onclick="goBack()">← Voltar</button>
+      </div>
+
+      <!-- IDENTIDADE -->
+      <div class="psec">
+        <div class="sec-lbl">Identidade Visual</div>
+        <span class="flbl">Nome de exibição</span>
+        <input class="pi" id="f-nome" value="iTalent Agency" oninput="rc()"/>
+        <span class="flbl">Usuário (@)</span>
+        <input class="pi" id="f-user" value="@italentagency" oninput="rc()"/>
+      </div>
+
+      <!-- ESTÉTICA -->
+      <div class="psec">
+        <div class="sec-lbl">Estética</div>
+        <span class="flbl">Cor de destaque</span>
+        <div class="color-row">
+          <input type="color" id="f-cor" value="#FF6B35" oninput="rc()"/>
+          <input class="pi" id="f-corh" value="#FF6B35" style="flex:1;font-size:11px" oninput="syncColor()"/>
+        </div>
+        <span class="flbl">Tamanho da fonte</span>
+        <div class="sl-row"><span class="sl-lbl">escala</span><span class="sl-val" id="vf">100%</span></div>
+        <input type="range" min="60" max="140" value="100" step="1" id="sl-f" oninput="upSl('f');rc()"/>
+        <span class="flbl">Escurecimento (tint)</span>
+        <div class="sl-row"><span class="sl-lbl">opacidade</span><span class="sl-val" id="vt">72%</span></div>
+        <input type="range" min="0" max="95" value="72" step="1" id="sl-t" oninput="upSl('t');rc()"/>
+        <span class="flbl">Posição do título</span>
+        <div class="sl-row"><span class="sl-lbl">vertical</span><span class="sl-val" id="vp">44%</span></div>
+        <input type="range" min="25" max="68" value="44" step="1" id="sl-p" oninput="upSl('p');rc()"/>
+      </div>
+
+      <!-- CONTEÚDO -->
+      <div class="psec">
+        <div class="sec-lbl">Conteúdo</div>
+        <span class="flbl">Tema / assunto</span>
+        <input class="pi" id="f-tema" placeholder="Ex: 3 erros no tráfego pago..."/>
+        <span class="flbl">Nicho / público</span>
+        <input class="pi" id="f-nicho" placeholder="Ex: empreendedores digitais"/>
+        <span class="flbl">Tom de voz</span>
+        <select class="psel" id="f-tom">
+          <option>Direto e provocador</option>
+          <option>Educativo e claro</option>
+          <option>Autoridade e técnico</option>
+          <option>Informativo</option>
+          <option>Leve e inspirador</option>
+        </select>
+        <span class="flbl">Estilo dos slides</span>
+        <div class="chips" id="est-chips">
+          <div class="chip on" onclick="selChip(this,'est-chips')">Dark Minimalista</div>
+          <div class="chip" onclick="selChip(this,'est-chips')">Bold</div>
+          <div class="chip" onclick="selChip(this,'est-chips')">Editorial</div>
+          <div class="chip" onclick="selChip(this,'est-chips')">Clean</div>
+        </div>
+        <span class="flbl">Quantidade de slides</span>
+        <div class="sl-row"><span class="sl-lbl">qtd</span><span class="sl-val" id="vs">7</span></div>
+        <input type="range" min="3" max="10" value="7" step="1" id="sl-s" oninput="upSl('s')"/>
+        <span class="flbl">CTA final</span>
+        <input class="pi" id="f-cta" value="Salva esse post!"/>
+        <span class="flbl">Legenda gerada</span>
+        <textarea class="pta" id="f-leg" placeholder="Será gerada pela IA automaticamente..."></textarea>
+      </div>
+
+      <div class="pactions">
+        <div class="status-txt" id="status-txt"></div>
+        <button class="abtn abtn-primary" id="btn-gerar" onclick="gerar()">⚡ Gerar Slides</button>
+        <button class="abtn abtn-ghost" onclick="dlCurrent()">↓ Salvar slide atual (PNG)</button>
+        <button class="abtn abtn-ghost" onclick="dlAll()">↓ Baixar todos os slides</button>
+        <button class="abtn abtn-dark" onclick="cpLegenda()">↗ Copiar legenda</button>
+      </div>
+    </div>
+
+    <!-- CANVAS -->
+    <div class="canvas-area">
+      <div class="canvas-header">
+        <div class="slide-nav">
+          <button class="nav-arr" onclick="navSlide(-1)">‹</button>
+          <span class="slide-count" id="slide-count">1 / 1</span>
+          <button class="nav-arr" onclick="navSlide(1)">›</button>
+        </div>
+        <button class="dl-btn" onclick="dlCurrent()">PNG ↓</button>
+      </div>
+      <div class="slide-wrap">
+        <canvas id="mainCanvas" width="1080" height="1350"></canvas>
+      </div>
+      <div class="strip" id="strip"></div>
+    </div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="config-tab" id="cfg">
+    <div class="cfg-card">
+      <div class="cfg-title">Perfil da agência</div>
+      <label class="cfl">Nome da marca</label>
+      <input class="cfi" id="cfg-marca" value="iTalent Agency"/>
+      <label class="cfl">Usuário padrão (@)</label>
+      <input class="cfi" id="cfg-user" value="@italentagency"/>
+      <label class="cfl">CTA padrão</label>
+      <input class="cfi" id="cfg-cta" value="Salva esse post!"/>
+      <label class="cfl">Hashtags padrão</label>
+      <input class="cfi" id="cfg-tags" value="#italentagency #marketingdigital #trafegopago"/>
+      <button class="save-btn" onclick="saveConfig()">Salvar configurações</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let slides = [], cur = 0, mode = 'txt';
+
+// ── TABS ──────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('dash').classList.remove('v');
+  document.getElementById('cfg').classList.remove('v');
+  document.getElementById('editor').classList.remove('v');
+  if (id === 'dash') document.getElementById('dash').classList.add('v');
+  else if (id === 'cfg') document.getElementById('cfg').classList.add('v');
 }
+
+function openEditor(m) {
+  mode = m;
+  const labels = { txt: 'Carrossel TXT', news: 'Breaking News', manual: 'Manual', zezius: 'Zezius AI' };
+  document.getElementById('pmode').textContent = labels[m] || m;
+  document.getElementById('dash').classList.remove('v');
+  document.getElementById('editor').classList.add('v');
+  if (slides.length === 0) placeholder();
 }
-  </script>
+
+function goBack() {
+  document.getElementById('editor').classList.remove('v');
+  document.getElementById('dash').classList.add('v');
+}
+
+function selChip(el, gid) {
+  document.querySelectorAll('#' + gid + ' .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function getChip(gid) {
+  const s = document.querySelector('#' + gid + ' .chip.on');
+  return s ? s.textContent : '';
+}
+
+// ── SLIDERS ───────────────────────────────────────────────────────
+function upSl(k) {
+  const m = { f: ['sl-f','vf','%'], t: ['sl-t','vt','%'], p: ['sl-p','vp','%'], s: ['sl-s','vs',''] };
+  const [id, out, sx] = m[k];
+  document.getElementById(out).textContent = document.getElementById(id).value + sx;
+}
+
+function syncColor() {
+  const v = document.getElementById('f-corh').value;
+  if (/^#[0-9A-Fa-f]{6}$/.test(v)) { document.getElementById('f-cor').value = v; rc(); }
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────
+function getSettings() {
+  return {
+    nome: document.getElementById('f-nome').value || 'iTalent Agency',
+    user: document.getElementById('f-user').value || '@italentagency',
+    cor: document.getElementById('f-cor').value || '#FF6B35',
+    fs: parseInt(document.getElementById('sl-f').value) / 100,
+    tint: parseInt(document.getElementById('sl-t').value) / 100,
+    ty: parseInt(document.getElementById('sl-p').value) / 100
+  };
+}
+
+// ── CANVAS ────────────────────────────────────────────────────────
+function wrapText(ctx, txt, x, y, maxW, lineH) {
+  const words = txt.split(' '); let line = '', cy = y;
+  for (let w of words) {
+    const t = line + w + ' ';
+    if (ctx.measureText(t).width > maxW && line !== '') {
+      ctx.fillText(line.trim(), x, cy); line = w + ' '; cy += lineH;
+    } else line = t;
+  }
+  if (line.trim()) ctx.fillText(line.trim(), x, cy);
+  return cy;
+}
+
+function wrapHeight(ctx, txt, x, y, maxW, lineH) {
+  const words = txt.split(' '); let line = '', cy = y;
+  for (let w of words) {
+    const t = line + w + ' ';
+    if (ctx.measureText(t).width > maxW && line !== '') { line = w + ' '; cy += lineH; }
+    else line = t;
+  }
+  return cy + lineH;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+}
+
+// Logo desenhada no canvas com ponto laranja SOBRE o "i"
+function drawLogo(ctx, x, y, fontSize) {
+  ctx.save();
+  ctx.font = `italic 400 ${fontSize}px 'Playfair Display', Georgia, serif`;
+  ctx.textAlign = 'left';
+
+  // medir largura do "i" para posicionar o ponto corretamente
+  const iW = ctx.measureText('i').width;
+
+  // desenhar "iStudio" completo
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText('iStudio', x, y);
+
+  // ponto laranja sobre o "i" — apagar o ponto original e desenhar o nosso
+  // o ponto fica centralizado na largura do "i", acima do topo da fonte
+  const dotX = x + iW * 0.46;
+  const dotY = y - fontSize * 0.76;
+  const dotR = fontSize * 0.075;
+  ctx.fillStyle = '#FF6B35';
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
+  ctx.fill();
+
+  // "by iTalent" como assinatura
+  const studioW = ctx.measureText('iStudio').width;
+  ctx.font = `400 ${Math.round(fontSize * 0.52)}px 'DM Sans', sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.fillText('by iTalent', x + studioW + fontSize * 0.5, y);
+  ctx.restore();
+}
+
+const BG = ['#0d0d0d','#0c1018','#120800','#070e1a','#0c1008','#100810','#0a0a18','#100d05'];
+
+function drawSlide(canvas, sd, s) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // fundo
+  ctx.fillStyle = BG[(sd.index || 0) % BG.length];
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = `rgba(0,0,0,${s.tint})`;
+  ctx.fillRect(0, 0, W, H);
+
+  const { cor, fs, ty } = s;
+
+  // logo no topo
+  drawLogo(ctx, 60, 78, 38);
+
+  // numeração
+  ctx.font = `400 ${Math.round(24 * fs)}px 'DM Sans', sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.textAlign = 'right';
+  ctx.fillText(`${(sd.index || 0) + 1} / ${slides.length || 1}`, W - 60, 72);
+  ctx.textAlign = 'left';
+
+  // linha de acento
+  ctx.fillStyle = cor;
+  ctx.fillRect(60, H * ty - 40, 40, 3);
+
+  // headline
+  const hs = Math.round(82 * fs);
+  ctx.font = `400 ${hs}px 'Playfair Display', Georgia, serif`;
+  ctx.fillStyle = '#FAFAFA';
+  ctx.textAlign = 'left';
+  const htxt = sd.headline || 'Headline do slide';
+  const hBot = wrapHeight(ctx, htxt, 60, H * ty, W - 120, hs * 1.14);
+  wrapText(ctx, htxt, 60, H * ty, W - 120, hs * 1.14);
+
+  // corpo
+  if (sd.corpo) {
+    const bs = Math.round(34 * fs);
+    ctx.font = `italic 400 ${bs}px 'Playfair Display', Georgia, serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.48)';
+    wrapText(ctx, sd.corpo, 60, hBot + 30, W - 120, bs * 1.58);
+  }
+
+  // CTA
+  if (sd.cta) {
+    const cy = H * 0.858;
+    ctx.fillStyle = cor;
+    roundRect(ctx, 60, cy, 310, 62, 10); ctx.fill();
+    ctx.font = `500 ${Math.round(26 * fs)}px 'DM Sans', sans-serif`;
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+    ctx.fillText(sd.cta, 60 + 155, cy + 40); ctx.textAlign = 'left';
+  }
+
+  // divisor rodapé
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(60, H - 118); ctx.lineTo(W - 60, H - 118); ctx.stroke();
+
+  // avatar
+  const ax = 60, ay = H - 94, ar = 26;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(ax + ar, ay + ar, ar, 0, Math.PI * 2); ctx.clip();
+  ctx.fillStyle = cor; ctx.fillRect(ax, ay, ar * 2, ar * 2);
+  ctx.font = `400 ${ar}px 'Playfair Display', serif`; ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.fillText((s.nome || 'i')[0].toLowerCase(), ax + ar, ay + ar + ar * 0.38);
+  ctx.restore();
+
+  // nome e user
+  ctx.textAlign = 'left';
+  ctx.font = `500 ${Math.round(25 * fs)}px 'DM Sans', sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.88)';
+  ctx.fillText(s.nome, ax + ar * 2 + 14, ay + ar - 2);
+  ctx.font = `400 ${Math.round(21 * fs)}px 'DM Sans', sans-serif`;
+  ctx.fillStyle = cor;
+  ctx.fillText(s.user, ax + ar * 2 + 14, ay + ar + 22);
+}
+
+function placeholder() {
+  const canvas = document.getElementById('mainCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0, 0, W, H);
+  drawLogo(ctx, 60, 78, 38);
+  ctx.fillStyle = '#FF6B35'; ctx.fillRect(60, H * 0.44 - 40, 40, 3);
+  ctx.font = `400 82px 'Playfair Display', Georgia, serif`;
+  ctx.fillStyle = '#FAFAFA'; ctx.textAlign = 'left';
+  ctx.fillText('Configure', 60, H * 0.44);
+  ctx.fillText('e gere slides.', 60, H * 0.44 + 96);
+  ctx.font = `italic 400 32px 'Playfair Display', serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.28)';
+  ctx.fillText('Preencha o painel e clique em Gerar Slides', 60, H * 0.44 + 172);
+}
+
+function rc() {
+  document.getElementById('f-corh').value = document.getElementById('f-cor').value;
+  if (slides.length === 0) { placeholder(); return; }
+  drawSlide(document.getElementById('mainCanvas'), slides[cur], getSettings());
+  updateStrip();
+}
+
+function updateStrip() {
+  const strip = document.getElementById('strip'); strip.innerHTML = '';
+  const s = getSettings();
+  slides.forEach((sd, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'sthumb' + (i === cur ? ' on' : '');
+    wrap.onclick = () => { cur = i; rc(); updateNav(); };
+    const c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+    drawSlide(c, sd, s); wrap.appendChild(c);
+    const n = document.createElement('div'); n.className = 'sthumb-num'; n.textContent = i + 1;
+    wrap.appendChild(n); strip.appendChild(wrap);
+  });
+}
+
+function updateNav() {
+  document.getElementById('slide-count').textContent = `${cur + 1} / ${slides.length}`;
+}
+
+function navSlide(d) {
+  cur = Math.max(0, Math.min(slides.length - 1, cur + d));
+  rc(); updateNav();
+}
+
+function setStatus(msg) { document.getElementById('status-txt').textContent = msg; }
+
+// ── PROMPT ────────────────────────────────────────────────────────
+function buildPrompt() {
+  const tema = document.getElementById('f-tema').value.trim();
+  const nicho = document.getElementById('f-nicho').value.trim();
+  const n = document.getElementById('sl-s').value;
+  const tom = document.getElementById('f-tom').value;
+  const cta = document.getElementById('f-cta').value.trim();
+  const est = getChip('est-chips');
+  if (!tema) return null;
+  const modeInstr = {
+    txt: 'Carrossel educativo e viral de marketing digital.',
+    news: 'Breaking News — jornalismo de autoridade, linguagem direta e impactante.',
+    manual: 'Organize o tema em slides claros e coesos sem inventar informacao.',
+    zezius: 'Estilo editorial Zezius AI: premium, curado, minimalista, profissional.'
+  };
+  return `Especialista em carrosseis virais para Instagram em portugues brasileiro.
+Crie EXATAMENTE ${n} slides. Tema: "${tema}". Publico: ${nicho || 'empreendedores'}. Tom: ${tom}. Estilo: ${est}. CTA final: "${cta}".
+Modo: ${modeInstr[mode] || ''}
+Retorne SOMENTE JSON valido sem markdown, sem explicacoes:
+{"slides":[{"headline":"max 8 palavras impactante","corpo":"1-2 frases diretas sem enrolacao","cta":""},...], "legenda":"legenda completa para Instagram com emojis e hashtags"}
+Regras: apenas o ULTIMO slide tem cta preenchido. Portugues BR coloquial e inteligente. Zero rodeios.`;
+}
+
+// ── GERAR ─────────────────────────────────────────────────────────
+async function gerar() {
+  const prompt = buildPrompt();
+  if (!prompt) { setStatus('Preencha o tema primeiro.'); return; }
+
+  const btn = document.getElementById('btn-gerar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Gerando...';
+  setStatus('Chamando Claude AI...');
+
+  try {
+    const resp = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, model: 'claude-sonnet-4-20250514', max_tokens: 1000 })
+    });
+
+    const raw = await resp.json();
+
+    if (!resp.ok) throw new Error(raw.error || 'Erro na API');
+
+    let txt = raw.content?.find(b => b.type === 'text')?.text || '';
+    txt = txt.replace(/```json|```/g, '').trim();
+    const data = JSON.parse(txt);
+
+    slides = data.slides.map((s, i) => ({ ...s, index: i }));
+    cur = 0;
+    if (data.legenda) document.getElementById('f-leg').value = data.legenda;
+    setStatus(`Pronto — ${slides.length} slides gerados.`);
+    updateNav(); rc();
+  } catch (e) {
+    setStatus('Erro: ' + e.message);
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '⚡ Gerar Slides';
+}
+
+// ── DOWNLOAD ──────────────────────────────────────────────────────
+function dlCurrent() {
+  if (!slides.length) return;
+  const c = document.getElementById('mainCanvas');
+  const a = document.createElement('a');
+  a.download = `istudio_slide_${cur + 1}.png`;
+  a.href = c.toDataURL('image/png'); a.click();
+}
+
+async function dlAll() {
+  if (!slides.length) return;
+  const s = getSettings(); setStatus('Preparando download...');
+  for (let i = 0; i < slides.length; i++) {
+    const c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+    drawSlide(c, slides[i], s);
+    const a = document.createElement('a');
+    a.download = `istudio_slide_${i + 1}.png`;
+    a.href = c.toDataURL('image/png'); a.click();
+    await new Promise(r => setTimeout(r, 350));
+  }
+  setStatus('Todos os slides baixados.');
+}
+
+function cpLegenda() {
+  const v = document.getElementById('f-leg').value;
+  if (!v) { setStatus('Gere os slides primeiro.'); return; }
+  navigator.clipboard.writeText(v)
+    .then(() => setStatus('Legenda copiada.'))
+    .catch(() => setStatus('Erro ao copiar.'));
+}
+
+function saveConfig() {
+  document.getElementById('f-nome').value = document.getElementById('cfg-marca').value;
+  document.getElementById('f-user').value = document.getElementById('cfg-user').value;
+  document.getElementById('f-cta').value = document.getElementById('cfg-cta').value;
+  alert('Configurações salvas e aplicadas ao editor.');
+}
+
+placeholder();
+</script>
 </body>
 </html>
